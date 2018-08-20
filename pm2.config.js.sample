@@ -1,0 +1,16 @@
+module.exports = {
+  apps: [
+    {
+      name: 'ppcoc_attendance',
+      script: './server.js',
+      instances: '1',
+      env: {
+        PORT: 3000,
+        NODE_ENV: 'production',
+        DB_NAME: 'ppcoc',
+        DB_HOST: 'localhost',
+        DB_PORT: '5432'
+      }
+    }
+  ]
+};
