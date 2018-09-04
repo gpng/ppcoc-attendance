@@ -14,3 +14,15 @@ export const getAllMembers = async () => {
   }
   return ['Error calling getAllMembers', null];
 };
+
+export const postAttendance = async id => {
+  const uri = `${API_HOST}/attendance`;
+  const [err, res] = await to(axios.post(uri, { id }));
+  if (err) {
+    return [err, null];
+  }
+  if (res.status === 200) {
+    return [null, res.data];
+  }
+  return ['Error calling postAttendance', null];
+};
