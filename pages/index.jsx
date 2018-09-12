@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Link from 'next/link';
 
 // material-ui
 import { withStyles } from '@material-ui/core/styles';
@@ -20,12 +21,16 @@ const styles = {
 
 const Index = ({ classes }) => (
   <div className={classes.root}>
-    <Button className={classes.button} variant="contained" color="secondary">
-      Members
-    </Button>
-    <Button className={classes.button} variant="contained" color="secondary">
-      Visitors
-    </Button>
+    <Link prefetch href="members">
+      <Button className={classes.button} variant="contained" color="secondary">
+        Members
+      </Button>
+    </Link>
+    <Link prefetch href="visitors">
+      <Button className={classes.button} variant="contained" color="secondary">
+        Visitors
+      </Button>
+    </Link>
   </div>
 );
 

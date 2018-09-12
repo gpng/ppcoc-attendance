@@ -1,13 +1,14 @@
 import React from 'react';
 import App, { Container } from 'next/app';
 import JssProvider from 'react-jss/lib/JssProvider';
+import Link from 'next/link';
 
 // material-ui
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import getPageContext from '../components/getPageContext';
 
 class MyApp extends App {
@@ -47,9 +48,9 @@ class MyApp extends App {
                 to render collected styles on server side. */}
             <AppBar position="static" color="primary">
               <Toolbar>
-                <Typography variant="title" color="inherit">
-                  PPCOC
-                </Typography>
+                <Link href="/">
+                  <Button color="inherit">PPCOC</Button>
+                </Link>
               </Toolbar>
             </AppBar>
             <Component pageContext={this.pageContext} {...pageProps} />
