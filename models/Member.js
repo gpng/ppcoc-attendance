@@ -3,14 +3,14 @@ module.exports = (sequelize, DataTypes) => {
     'Member',
     {
       name: DataTypes.STRING,
-      contact: DataTypes.STRING
+      contact: DataTypes.STRING,
     },
-    {}
+    {},
   );
-  Member.associate = function(models) {
+  Member.associate = (models) => {
     // associations can be defined here
     Member.hasMany(models.Attendance, {
-      foreignKey: 'memberId'
+      foreignKey: 'memberId',
     });
   };
   return Member;

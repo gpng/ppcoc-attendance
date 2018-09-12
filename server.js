@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 // models
 const { Member, Attendance } = require('./models');
 
-start = async () => {
+const start = async () => {
   await app.prepare();
 
   const server = express();
@@ -44,12 +44,27 @@ start = async () => {
     }
   });
 
-  server.get('*', (req, res) => {
-    return handle(req, res);
+  server.get('/api/search', async (req, res) => {
+    try {
+      const { query } = req.query;
+      const results = await Member.findAll({
+        where: { name: { [Op.iLike]: `%${query}%` } },
+        attributes: ['id', 'name'],
+      });
+      if (results) {
+        res.status(200).send(results);
+      } else {
+        res.status(500).send('server error');
+      }
+    } catch (err) {
+      res.status(500).send(err);
+    }
   });
 
+  server.get('*', (req, res) => handle(req, res));
+
   const port = process.env.PORT || 3000;
-  server.listen(port, err => {
+  server.listen(port, (err) => {
     if (err) {
       throw err;
     }
