@@ -15,7 +15,7 @@ export const getAllMembers = async () => {
   return ['Error calling getAllMembers', null];
 };
 
-export const postAttendance = async id => {
+export const postAttendance = async (id) => {
   const uri = `${API_HOST}/attendance`;
   const [err, res] = await to(axios.post(uri, { id }));
   if (err) {

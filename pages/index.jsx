@@ -8,13 +8,11 @@ class Index extends Component {
     super(props);
     this.fuse = null;
     this.state = {
-      members: [],
       results: [],
       text: '',
-      loading: true
+      loading: true,
     };
     // bindings
-    // this.getMembers = this.getMembers.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -25,10 +23,6 @@ class Index extends Component {
   async getMembers() {
     const [err, members] = await getAllMembers();
     if (!err) {
-      const parsedMembers = members.map(x => ({
-        ...x,
-        name: `${x.firstName} ${x.lastName}`
-      }));
       const options = {
         shouldSort: true,
         includeScore: true,
@@ -37,10 +31,10 @@ class Index extends Component {
         distance: 100,
         maxPatternLength: 32,
         minMatchCharLength: 1,
-        keys: ['name']
+        keys: ['name'],
       };
-      this.fuse = new Fuse(parsedMembers, options);
-      this.setState({ members: parsedMembers, loading: false });
+      this.fuse = new Fuse(members, options);
+      this.setState({ loading: false });
     } else {
       console.log(err);
     }
@@ -56,7 +50,7 @@ class Index extends Component {
     if (!err) {
       this.setState({
         text: '',
-        results: []
+        results: [],
       });
     } else {
       console.log(err);
@@ -68,17 +62,17 @@ class Index extends Component {
 
     return (
       <div>
-        <h1>Welcome to PPCOC's attendance page</h1>
+        <h1>Welcome to PPCOC attendance page</h1>
         {loading ? (
           <div>loading...</div>
         ) : (
           <div>
             <input value={text} onChange={this.handleChange} />
             <div className="autocomplete">
-              {results.map((x, i) => (
+              {results.map(x => (
                 <button
                   type="button"
-                  className={'result'}
+                  className="result"
                   key={x.item.id}
                   onClick={() => this.handleClick(x.item.id)}
                 >
@@ -89,36 +83,38 @@ class Index extends Component {
           </div>
         )}
 
-        <style jsx>{`
-          .member {
-            border: 1px solid black;
-            padding: 16px;
-            border-radius: 4px;
-            margin: 4px;
-          }
+        <style jsx>
+          {`
+            .member {
+              border: 1px solid black;
+              padding: 16px;
+              border-radius: 4px;
+              margin: 4px;
+            }
 
-          .autocomplete {
-            display: flex;
-            flex-direction: column;
-          }
+            .autocomplete {
+              display: flex;
+              flex-direction: column;
+            }
 
-          .result {
-            font-size: 1em;
-            padding: 8px;
-            background: none;
-            border: none;
-            text-align: left;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            cursor: pointer;
-            border: 1px solid black;
-          }
+            .result {
+              font-size: 1em;
+              padding: 8px;
+              background: none;
+              border: none;
+              text-align: left;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              cursor: pointer;
+              border: 1px solid black;
+            }
 
-          .result:hover {
-            background: #cccccc;
-          }
-        `}</style>
+            .result:hover {
+              background: #cccccc;
+            }
+          `}
+        </style>
       </div>
     );
   }

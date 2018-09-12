@@ -2,8 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Member = sequelize.define(
     'Member',
     {
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
+      name: DataTypes.STRING,
       contact: DataTypes.STRING
     },
     {}

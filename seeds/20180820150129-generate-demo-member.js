@@ -6,15 +6,13 @@ module.exports = {
       'Members',
       [
         {
-          firstName: 'Michael',
-          lastName: 'Tan',
+          name: 'Michael Tan',
           contact: '+65 1234567',
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          firstName: 'Jill',
-          lastName: 'Chong',
+          name: 'Jill Chong',
           contact: null,
           createdAt: new Date(),
           updatedAt: new Date()
