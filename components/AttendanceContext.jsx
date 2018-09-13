@@ -13,15 +13,37 @@ class AttendanceProvider extends Component {
 
     // bindings
     this.setSelected = this.setSelected.bind(this);
+    this.handleNotificationClose = this.handleNotificationClose.bind(this);
+    this.triggerNotification = this.triggerNotification.bind(this);
 
     this.state = {
       selected: [],
       setSelected: this.setSelected,
+      triggerNotification: this.triggerNotification,
+      notification: {
+        open: false,
+        message: '',
+      },
+      onNotificationClose: this.handleNotificationClose,
     };
   }
 
   setSelected(selected) {
     this.setState({ selected });
+  }
+
+  triggerNotification(message) {
+    this.setState({
+      notification: {
+        message,
+        open: true,
+      },
+    });
+  }
+
+  handleNotificationClose() {
+    const { notification } = this.state;
+    this.setState({ notification: { ...notification, open: false } });
   }
 
   render() {

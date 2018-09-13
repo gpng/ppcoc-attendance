@@ -10,6 +10,7 @@ import getPageContext from '../components/getPageContext';
 // components
 import Header from '../components/Header';
 import { AttendanceProvider, AttendanceConsumer } from '../components/AttendanceContext';
+import Notification from '../components/Notification';
 
 class MyApp extends App {
   constructor(props) {
@@ -50,7 +51,13 @@ class MyApp extends App {
             <AttendanceProvider>
               <AttendanceConsumer>
                 {attendanceProps => (
-                  <Component pageContext={this.pageContext} {...pageProps} {...attendanceProps} />
+                  <>
+                    <Component pageContext={this.pageContext} {...pageProps} {...attendanceProps} />
+                    <Notification
+                      {...attendanceProps.notification}
+                      onClose={attendanceProps.onNotificationClose}
+                    />
+                  </>
                 )}
               </AttendanceConsumer>
             </AttendanceProvider>
