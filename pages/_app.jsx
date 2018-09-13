@@ -9,6 +9,7 @@ import getPageContext from '../components/getPageContext';
 
 // components
 import Header from '../components/Header';
+import { AttendanceProvider, AttendanceConsumer } from '../components/AttendanceContext';
 
 class MyApp extends App {
   constructor(props) {
@@ -46,7 +47,13 @@ class MyApp extends App {
             <Header />
             {/* Pass pageContext to the _document though the renderPage enhancer
                 to render collected styles on server side. */}
-            <Component pageContext={this.pageContext} {...pageProps} />
+            <AttendanceProvider>
+              <AttendanceConsumer>
+                {attendanceProps => (
+                  <Component pageContext={this.pageContext} {...pageProps} {...attendanceProps} />
+                )}
+              </AttendanceConsumer>
+            </AttendanceProvider>
           </MuiThemeProvider>
         </JssProvider>
       </Container>
