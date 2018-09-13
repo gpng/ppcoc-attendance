@@ -6,8 +6,12 @@ import Link from 'next/link';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
+// styles
+import { container } from '../stylesheets/general';
+
 const styles = {
   root: {
+    ...container,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
