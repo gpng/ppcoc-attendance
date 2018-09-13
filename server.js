@@ -32,8 +32,9 @@ const start = async () => {
 
   server.post('/api/attendance', async (req, res) => {
     try {
-      const memberId = req.body.id;
-      const attendance = await Attendance.create({ memberId });
+      const { reason, ids } = req.body;
+
+      const attendance = await Attendance.bulkCreate(ids.map(x => ({ memberId: x, reason })));
       if (attendance) {
         res.status(200).send(attendance);
       } else {
