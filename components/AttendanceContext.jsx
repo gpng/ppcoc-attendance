@@ -28,6 +28,17 @@ class AttendanceProvider extends Component {
     };
   }
 
+  componentDidMount() {
+    this.getInitialSelectedState();
+  }
+
+  getInitialSelectedState() {
+    const selectedString = localStorage.getItem('selected');
+    if (selectedString) {
+      this.setSelected(JSON.parse(selectedString));
+    }
+  }
+
   setSelected(selected) {
     this.setState({ selected });
   }

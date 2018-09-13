@@ -46,6 +46,7 @@ class Submit extends Component {
     const [err] = await this.attendanceRequest.call(selected.map(x => x.id), reason);
     if (!err) {
       triggerNotification('Successfully Submitted');
+      localStorage.setItem('selected', JSON.stringify(selected));
       Router.push('/');
     }
   }
