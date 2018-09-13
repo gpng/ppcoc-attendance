@@ -26,10 +26,7 @@ const Notification = ({
   >
     <SnackbarContent
       className={classes.snackbar}
-      ContentProps={{
-        'aria-describedby': 'message-id',
-      }}
-      message={<span id="message-id">{message}</span>}
+      message={<span>{message}</span>}
       action={[
         <IconButton
           key="close"
