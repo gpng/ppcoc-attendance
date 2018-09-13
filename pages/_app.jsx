@@ -1,15 +1,14 @@
 import React from 'react';
 import App, { Container } from 'next/app';
 import JssProvider from 'react-jss/lib/JssProvider';
-import Link from 'next/link';
 
 // material-ui
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button';
 import getPageContext from '../components/getPageContext';
+
+// components
+import Header from '../components/Header';
 
 class MyApp extends App {
   constructor(props) {
@@ -44,15 +43,9 @@ class MyApp extends App {
           >
             {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
             <CssBaseline />
+            <Header />
             {/* Pass pageContext to the _document though the renderPage enhancer
                 to render collected styles on server side. */}
-            <AppBar position="static" color="primary">
-              <Toolbar>
-                <Link href="/">
-                  <Button color="inherit">PPCOC</Button>
-                </Link>
-              </Toolbar>
-            </AppBar>
             <Component pageContext={this.pageContext} {...pageProps} />
           </MuiThemeProvider>
         </JssProvider>
