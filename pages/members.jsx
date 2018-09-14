@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
+import Fuse from 'fuse.js';
 
 // material-ui
 import { withStyles } from '@material-ui/core/styles';
@@ -58,7 +59,17 @@ class Members extends Component {
     this.autocompleteRequest.cancel();
     const [err, results] = await this.autocompleteRequest.call(query);
     if (!err) {
-      this.setState({ results });
+      const fuse = new Fuse(results, {
+        shouldSort: true,
+        findAllMatches: true,
+        threshold: 1,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        minMatchCharLength: 1,
+        keys: ['name'],
+      });
+      this.setState({ results: fuse.search(query) });
     }
   }
 
