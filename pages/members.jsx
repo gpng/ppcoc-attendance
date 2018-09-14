@@ -36,6 +36,10 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
   },
+  input: {
+    flex: '1 0 auto',
+    paddingRight: '24px',
+  },
 };
 
 class Members extends Component {
@@ -104,7 +108,9 @@ class Members extends Component {
       <div className={classes.root}>
         <SelectedChips onDelete={this.handleClick} selected={selected} />
         <div className={classes.inputContainer}>
-          <TextField value={search} onChange={this.handleChange} placeholder="Search" />
+          <div className={classes.input}>
+            <TextField value={search} onChange={this.handleChange} placeholder="Search" fullWidth />
+          </div>
           <Link href="/submit">
             <Button
               variant="contained"
