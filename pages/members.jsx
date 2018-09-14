@@ -32,6 +32,10 @@ const styles = {
     overflowY: 'scroll',
     padding: '8px 0',
   },
+  inputContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
 };
 
 class Members extends Component {
@@ -99,7 +103,19 @@ class Members extends Component {
     return (
       <div className={classes.root}>
         <SelectedChips onDelete={this.handleClick} selected={selected} />
-        <TextField value={search} onChange={this.handleChange} placeholder="Search" fullWidth />
+        <div className={classes.inputContainer}>
+          <TextField value={search} onChange={this.handleChange} placeholder="Search" />
+          <Link href="/submit">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={this.handleSubmit}
+              disabled={selected.length === 0}
+            >
+              Submit
+            </Button>
+          </Link>
+        </div>
         <List className={classes.results}>
           {results.map(x => (
             <Result
@@ -110,16 +126,6 @@ class Members extends Component {
             />
           ))}
         </List>
-        <Link href="/submit">
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={this.handleSubmit}
-            disabled={selected.length === 0}
-          >
-            Submit
-          </Button>
-        </Link>
       </div>
     );
   }

@@ -15,6 +15,7 @@ const styles = {
   chipsContainer: {
     display: 'flex',
     justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   chip: {
     margin: '4px',
