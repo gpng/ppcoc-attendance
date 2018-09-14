@@ -10,6 +10,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "classnames": "^2.2.6",
+    "csvtojson": "^2.0.8",
     "express": "^4.16.3",
     "fuse.js": "^3.2.1",
     "jss": "^9.8.7",
@@ -28,7 +29,8 @@
     "start": "next build && pm2 start pm2.config.js && pm2 logs",
     "build": "next build",
     "db-migrate": "sequelize db:migrate",
-    "db-seeds": "sequelize db:seed:all"
+    "db-seeds": "sequelize db:seed:all",
+    "db-all": "npm run db-migrate && npm run db-seeds"
   },
   "devDependencies": {
     "babel-eslint": "^9.0.0",

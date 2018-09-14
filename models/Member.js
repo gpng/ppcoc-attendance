@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     'Member',
     {
       name: DataTypes.STRING,
-      contact: DataTypes.STRING,
+      status: DataTypes.STRING,
+      remarks: DataTypes.STRING,
     },
     {},
   );
