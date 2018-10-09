@@ -32,7 +32,7 @@ class SelectedChips extends Component {
     const { classes, selected, onDelete } = this.props;
     return (
       <div className={classes.root}>
-        <Typography variant="title">Submit attendance for:</Typography>
+        <Typography variant="h6">Submit attendance for:</Typography>
         {selected.length === 0 && (
           <Typography>No names selected, search below to add names to list</Typography>
         )}
