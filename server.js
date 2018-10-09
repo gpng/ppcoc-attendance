@@ -62,6 +62,15 @@ const start = async () => {
     }
   });
 
+  server.get(
+    '/.well-known/acme-challenge/Ac-B78hjbUc40uOU3rot-iKei8fhP8TwhBndLvfMNy0',
+    async (req, res) => {
+      res.send(
+        'Ac-B78hjbUc40uOU3rot-iKei8fhP8TwhBndLvfMNy0.ekGfNElWLki-qTuIttZV4A2K9rkbjWhK988UjpJKn7w',
+      );
+    },
+  );
+
   server.get('*', (req, res) => handle(req, res));
 
   const port = process.env.PORT || 3000;
