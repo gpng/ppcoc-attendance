@@ -1,6 +1,8 @@
 const express = require('express');
 const next = require('next');
 const { Op } = require('sequelize');
+const https = require('https');
+const fs = require('fs');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -74,12 +76,29 @@ const start = async () => {
   server.get('*', (req, res) => handle(req, res));
 
   const port = process.env.PORT || 3000;
-  server.listen(port, (err) => {
-    if (err) {
-      throw err;
-    }
-    console.log(`> Ready on http://localhost:${port}`);
-  });
+  if (dev) {
+    server.listen(port, (err) => {
+      if (err) {
+        throw err;
+      }
+      console.log(`> Ready on http://localhost:${port}`);
+    });
+  } else {
+    https
+      .createServer(
+        {
+          key: fs.readFileSync('key.pem'),
+          cert: fs.readFileSync('cert.pem'),
+        },
+        app,
+      )
+      .listen(55555, (err) => {
+        if (err) {
+          throw err;
+        }
+        console.log(`> Ready on http://localhost:${port}`);
+      });
+  }
 };
 
 start();
