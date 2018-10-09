@@ -63,10 +63,10 @@ const start = async () => {
   });
 
   server.get(
-    '/.well-known/acme-challenge/Ac-B78hjbUc40uOU3rot-iKei8fhP8TwhBndLvfMNy0',
+    '/.well-known/acme-challenge/8D2tLcnL_uYff1XSCpFll9SBC5KiLdCLZNmGcOxUb4k',
     async (req, res) => {
       res.send(
-        'Ac-B78hjbUc40uOU3rot-iKei8fhP8TwhBndLvfMNy0.ekGfNElWLki-qTuIttZV4A2K9rkbjWhK988UjpJKn7w',
+        '8D2tLcnL_uYff1XSCpFll9SBC5KiLdCLZNmGcOxUb4k.ekGfNElWLki-qTuIttZV4A2K9rkbjWhK988UjpJKn7w',
       );
     },
   );
