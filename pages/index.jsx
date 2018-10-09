@@ -1,60 +1,150 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
-import classNames from 'classnames';
+import Fuse from 'fuse.js';
 
 // material-ui
 import { withStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import List from '@material-ui/core/List';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+
+// components
+import Result from '../components/Members/Result';
+import SelectedChips from '../components/SelectedChips';
+import { GetAutocomplete } from '../actions';
 
 // styles
-import Typography from '@material-ui/core/Typography';
 import { container } from '../stylesheets/general';
 
 const styles = {
   root: {
     ...container,
+    paddingTop: '15px',
+    paddingBottom: '15px',
+    flex: '1 0 auto',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    paddingTop: '12px',
   },
-  button: {
-    width: '50%',
-    minWidth: '50%',
-    margin: '16px 0',
+  results: {
+    flex: '1 0 auto',
+    maxHeight: '100%',
+    overflowY: 'scroll',
+    padding: '8px 0',
   },
-  message: {
-    fontSize: '1em',
-    textAlign: 'center',
+  inputContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
   },
-  messageBottom: {
-    marginTop: '12px',
+  input: {
+    flex: '1 0 auto',
+    paddingRight: '24px',
   },
 };
 
-const Index = ({ classes }) => (
-  <div className={classes.root}>
-    <Typography className={classes.message}>Welcome to our Worship Services!</Typography>
-    <Typography className={classes.message}>Let us worship God in Spirit and in Truth.</Typography>
-    <Link prefetch href="members">
-      <Button className={classes.button} variant="contained" color="secondary">
-        Members
-      </Button>
-    </Link>
-    <Link prefetch href="visitors">
-      <Button className={classes.button} variant="contained" color="secondary">
-        Visitors
-      </Button>
-    </Link>
-    <Typography className={classNames(classes.message, classes.messageBottom)}>
-      Enter to Worship, Leave to Serve.
-    </Typography>
-  </div>
-);
+class Members extends Component {
+  constructor(props) {
+    super(props);
+    this.autocompleteRequest = new GetAutocomplete();
+    this.state = {
+      results: [],
+      search: '',
+    };
+    // bindings
+    this.handleChange = this.handleChange.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+  }
 
-Index.propTypes = {
+  componentWillUnmount() {
+    this.autocompleteRequest.cancel();
+  }
+
+  async handleAutocomplete(query) {
+    if (query === '') {
+      this.setState({ results: [] });
+      return;
+    }
+    this.autocompleteRequest.cancel();
+    const [err, results] = await this.autocompleteRequest.call(query);
+    if (!err) {
+      const fuse = new Fuse(results, {
+        shouldSort: true,
+        findAllMatches: true,
+        threshold: 1,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        minMatchCharLength: 1,
+        keys: ['name'],
+      });
+      this.setState({ results: fuse.search(query) });
+    }
+  }
+
+  handleChange(ev) {
+    this.setState({
+      search: ev.target.value,
+    });
+    this.handleAutocomplete(ev.target.value);
+  }
+
+  handleClick(details) {
+    const { selected, setSelected } = this.props;
+    const newSelected = selected.slice();
+    const index = selected.findIndex(x => x.id === details.id);
+    if (index > -1) {
+      newSelected.splice(index, 1);
+    } else {
+      newSelected.push(details);
+    }
+    setSelected(newSelected);
+  }
+
+  render() {
+    const { classes, selected } = this.props;
+    const { results, search } = this.state;
+
+    return (
+      <div className={classes.root}>
+        <Typography align="center" variant="overline">
+          Enter to Worship, Leave to Serve
+        </Typography>
+        <SelectedChips onDelete={this.handleClick} selected={selected} />
+        <div className={classes.inputContainer}>
+          <div className={classes.input}>
+            <TextField value={search} onChange={this.handleChange} placeholder="Search" fullWidth />
+          </div>
+          <Link href="/submit">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={this.handleSubmit}
+              disabled={selected.length === 0}
+            >
+              Submit
+            </Button>
+          </Link>
+        </div>
+        <List className={classes.results}>
+          {results.map(x => (
+            <Result
+              key={x.id}
+              details={x}
+              selected={Boolean(selected.find(s => s.id === x.id))}
+              onClick={this.handleClick}
+            />
+          ))}
+        </List>
+      </div>
+    );
+  }
+}
+
+Members.propTypes = {
   classes: PropTypes.object.isRequired,
+  selected: PropTypes.array.isRequired,
+  setSelected: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(Index);
+export default withStyles(styles)(Members);
