@@ -117,7 +117,7 @@ const start = async () => {
 
   server.get('/api/report', async (req, res) => {
     try {
-      const [abseentees, ...servicesAttendance] = await Promise.all([
+      const [absentees, ...servicesAttendance] = await Promise.all([
         getAbsentees(),
         ...SERVICES.map(x => getAttendanceNumbers(x)),
       ]);
@@ -125,7 +125,7 @@ const start = async () => {
       servicesAttendance.forEach((x, i) => {
         attendance[SERVICES[i]] = x;
       });
-      res.send({ abseentees, attendance });
+      res.send({ absentees, attendance });
     } catch (err) {
       res.status(500).send(err);
     }
