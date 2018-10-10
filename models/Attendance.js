@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
   Attendance.associate = (models) => {
     // associations can be defined here
     Attendance.belongsTo(models.Member, {
-      foreignKey: 'member_id',
+      foreignKey: 'memberId',
     });
   };
   return Attendance;

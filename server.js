@@ -1,6 +1,10 @@
 const express = require('express');
 const next = require('next');
-const { Op } = require('sequelize');
+const moment = require('moment');
+const _ = require('lodash');
+const sequelize = require('sequelize');
+
+const { Op } = sequelize;
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -9,6 +13,9 @@ const bodyParser = require('body-parser');
 
 // models
 const { Member, Attendance } = require('./models');
+
+// constants
+const { SERVICES } = require('./constants');
 
 const start = async () => {
   await app.prepare();
@@ -57,6 +64,68 @@ const start = async () => {
       } else {
         res.status(500).send('server error');
       }
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+
+  const getAbsentees = async () => {
+    try {
+      const results = await Member.findAll({
+        where: {
+          lastAttendance: {
+            [Op.or]: [
+              null,
+              {
+                [Op.lt]: moment()
+                  .utc()
+                  .startOf('week')
+                  .toDate(),
+              },
+            ],
+          },
+        },
+        attributes: ['id', 'name', 'lastAttendance'],
+      });
+      if (results) {
+        return results;
+      }
+      return {};
+    } catch (err) {
+      console.error('getAbsentees error', err);
+      return {};
+    }
+  };
+
+  const getAttendanceNumbers = async (reason) => {
+    try {
+      const results = await Attendance.findAll({
+        where: {
+          reason,
+        },
+      });
+      if (results) {
+        const uniqueResults = _.uniqBy(results, 'memberId');
+        return uniqueResults.length;
+      }
+      return 0;
+    } catch (err) {
+      console.error('getAttendanceNumbers error', err);
+      return 0;
+    }
+  };
+
+  server.get('/api/report', async (req, res) => {
+    try {
+      const [abseentees, ...servicesAttendance] = await Promise.all([
+        getAbsentees(),
+        ...SERVICES.map(x => getAttendanceNumbers(x)),
+      ]);
+      const attendance = {};
+      servicesAttendance.forEach((x, i) => {
+        attendance[SERVICES[i]] = x;
+      });
+      res.send({ abseentees, attendance });
     } catch (err) {
       res.status(500).send(err);
     }
