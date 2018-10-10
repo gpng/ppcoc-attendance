@@ -23,13 +23,14 @@ const styles = {
     ...container,
     paddingTop: '15px',
     paddingBottom: '15px',
-    flex: '1 0 auto',
+    flexGrow: 1,
+    minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
   },
   results: {
-    flex: '1 0 auto',
-    maxHeight: '100%',
+    flexGrow: 1,
+    minHeight: 0,
     overflowY: 'scroll',
     padding: '8px 0',
   },
@@ -43,7 +44,7 @@ const styles = {
   },
 };
 
-class Members extends Component {
+class Index extends Component {
   constructor(props) {
     super(props);
     this.autocompleteRequest = new GetAutocomplete();
@@ -141,10 +142,10 @@ class Members extends Component {
   }
 }
 
-Members.propTypes = {
+Index.propTypes = {
   classes: PropTypes.object.isRequired,
   selected: PropTypes.array.isRequired,
   setSelected: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(Members);
+export default withStyles(styles)(Index);

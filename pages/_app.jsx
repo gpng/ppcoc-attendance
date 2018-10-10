@@ -45,22 +45,36 @@ class MyApp extends App {
           >
             {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
             <CssBaseline />
-            <Header />
-            {/* Pass pageContext to the _document though the renderPage enhancer
+            <div
+              style={{
+                height: '100vh',
+                width: '100vw',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Header />
+              {/* Pass pageContext to the _document though the renderPage enhancer
                 to render collected styles on server side. */}
-            <AttendanceProvider>
-              <AttendanceConsumer>
-                {attendanceProps => (
-                  <>
-                    <Component pageContext={this.pageContext} {...pageProps} {...attendanceProps} />
-                    <Notification
-                      {...attendanceProps.notification}
-                      onClose={attendanceProps.onNotificationClose}
-                    />
-                  </>
-                )}
-              </AttendanceConsumer>
-            </AttendanceProvider>
+              <AttendanceProvider>
+                <AttendanceConsumer>
+                  {attendanceProps => (
+                    <>
+                      <Component
+                        pageContext={this.pageContext}
+                        {...pageProps}
+                        {...attendanceProps}
+                      />
+                      <Notification
+                        {...attendanceProps.notification}
+                        onClose={attendanceProps.onNotificationClose}
+                      />
+                    </>
+                  )}
+                </AttendanceConsumer>
+              </AttendanceProvider>
+            </div>
           </MuiThemeProvider>
         </JssProvider>
       </Container>
