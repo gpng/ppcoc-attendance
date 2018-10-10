@@ -17,6 +17,10 @@ module.exports = {
       allowNull: true,
       type: Sequelize.STRING,
     },
+    lastAttendance: {
+      allowNull: true,
+      type: Sequelize.DATE,
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,

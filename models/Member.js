@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       status: DataTypes.STRING,
       remarks: DataTypes.STRING,
+      lastAttendance: DataTypes.DATE,
     },
     {},
   );
