@@ -37,3 +37,19 @@ export class GetAutocomplete extends AxiosRequest {
     return [err || 'server error', null];
   }
 }
+
+export class GetReport extends AxiosRequest {
+  async call() {
+    this.refreshToken();
+    const uri = `${API_HOST}/report`;
+    const [err, res] = await to(
+      axios.get(uri, {
+        cancelToken: this.getCancelToken(),
+      }),
+    );
+    if (!err && res.status === 200) {
+      return [null, res.data];
+    }
+    return [err || 'server error', null];
+  }
+}
