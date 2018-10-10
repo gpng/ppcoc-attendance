@@ -62,6 +62,7 @@ class Submit extends Component {
         <SelectedChips selected={selected} />
         {SERVICES.map(x => (
           <Button
+            key={x}
             className={classes.button}
             variant="contained"
             color="secondary"
