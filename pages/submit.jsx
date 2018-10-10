@@ -10,6 +10,9 @@ import Button from '@material-ui/core/Button';
 import SelectedChips from '../components/SelectedChips';
 import { PostAttendance } from '../actions';
 
+// constants
+import { SERVICES } from '../constants';
+
 // styles
 import { container } from '../stylesheets/general';
 
@@ -57,33 +60,17 @@ class Submit extends Component {
     return (
       <div className={classes.root}>
         <SelectedChips selected={selected} />
-        <Button
-          className={classes.button}
-          variant="contained"
-          color="secondary"
-          disabled={selected.length === 0}
-          onClick={() => this.handleClick('8am service')}
-        >
-          8am Service
-        </Button>
-        <Button
-          className={classes.button}
-          variant="contained"
-          color="secondary"
-          disabled={selected.length === 0}
-          onClick={() => this.handleClick('11am service')}
-        >
-          11am Service
-        </Button>
-        <Button
-          className={classes.button}
-          variant="contained"
-          color="secondary"
-          disabled={selected.length === 0}
-          onClick={() => this.handleClick('6pm service')}
-        >
-          6pm Service
-        </Button>
+        {SERVICES.map(x => (
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="secondary"
+            disabled={selected.length === 0}
+            onClick={() => this.handleClick(x)}
+          >
+            {x}
+          </Button>
+        ))}
       </div>
     );
   }
