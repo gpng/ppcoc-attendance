@@ -7,12 +7,21 @@ import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
+import auth0Client from './Auth';
 
 // styles
 import { container } from '../stylesheets/general';
 
 const styles = {
-  container,
+  container: {
+    ...container,
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  logout: {
+    fontSize: '0.6em',
+    color: '#999999',
+  },
 };
 
 const Header = ({ classes }) => (
@@ -21,6 +30,11 @@ const Header = ({ classes }) => (
       <Link href="/">
         <Button color="inherit">PPCOC</Button>
       </Link>
+      {auth0Client.isAuthenticated() && (
+        <Button className={classes.logout} color="inherit" onClick={() => auth0Client.signOut()}>
+          Logout
+        </Button>
+      )}
     </Toolbar>
   </AppBar>
 );

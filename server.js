@@ -3,13 +3,16 @@ const next = require('next');
 const moment = require('moment');
 const _ = require('lodash');
 const sequelize = require('sequelize');
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
+const bodyParser = require('body-parser');
 
 const { Op } = sequelize;
-
 const dev = process.env.NODE_ENV !== 'production';
+const config = require('./config')[dev ? 'development' : 'production'];
+
 const app = next({ dev });
 const handle = app.getRequestHandler();
-const bodyParser = require('body-parser');
 
 // models
 const { Member, Attendance } = require('./models');
@@ -115,7 +118,31 @@ const start = async () => {
     }
   };
 
-  server.get('/api/report', async (req, res) => {
+  server.get(
+    '/.well-known/acme-challenge/8D2tLcnL_uYff1XSCpFll9SBC5KiLdCLZNmGcOxUb4k',
+    async (req, res) => {
+      res.send(
+        '8D2tLcnL_uYff1XSCpFll9SBC5KiLdCLZNmGcOxUb4k.ekGfNElWLki-qTuIttZV4A2K9rkbjWhK988UjpJKn7w',
+      );
+    },
+  );
+
+  // AUTH
+  const checkJwt = jwt({
+    secret: jwksRsa.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: `https://${config.auth0Domain}/.well-known/jwks.json`,
+    }),
+
+    // Validate the audience and the issuer.
+    audience: config.auth0ClientId,
+    issuer: `https://${config.auth0Domain}/`,
+    algorithms: ['RS256'],
+  });
+
+  server.get('/api/report', checkJwt, async (req, res) => {
     try {
       const date = moment().startOf('week');
       const [absentees, ...servicesAttendance] = await Promise.all([
@@ -132,15 +159,7 @@ const start = async () => {
     }
   });
 
-  server.get(
-    '/.well-known/acme-challenge/8D2tLcnL_uYff1XSCpFll9SBC5KiLdCLZNmGcOxUb4k',
-    async (req, res) => {
-      res.send(
-        '8D2tLcnL_uYff1XSCpFll9SBC5KiLdCLZNmGcOxUb4k.ekGfNElWLki-qTuIttZV4A2K9rkbjWhK988UjpJKn7w',
-      );
-    },
-  );
-
+  // CLIENT
   server.get('*', (req, res) => handle(req, res));
 
   const port = process.env.PORT || 3000;

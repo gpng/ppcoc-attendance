@@ -3,6 +3,7 @@ import to from 'await-to-js';
 
 // components
 import AxiosRequest from './AxiosRequest';
+import auth0Client from '../components/Auth';
 
 // constants
 import { API_HOST } from '../configs/client';
@@ -45,6 +46,9 @@ export class GetReport extends AxiosRequest {
     const [err, res] = await to(
       axios.get(uri, {
         cancelToken: this.getCancelToken(),
+        headers: {
+          Authorization: `Bearer ${auth0Client.getIdToken()}`,
+        },
       }),
     );
     if (!err && res.status === 200) {

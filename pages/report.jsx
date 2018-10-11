@@ -14,6 +14,7 @@ import TableRow from '@material-ui/core/TableRow';
 
 // components
 import { GetReport } from '../actions';
+import auth0Client from '../components/Auth';
 
 // constants
 import { SERVICES } from '../constants';
@@ -62,7 +63,12 @@ class Report extends Component {
   }
 
   componentDidMount() {
-    this.loadReport();
+    if (auth0Client.isAuthenticated()) {
+      this.loadReport();
+    } else {
+      localStorage.setItem('route', '/report');
+      auth0Client.signIn();
+    }
   }
 
   setSort(name) {
