@@ -2,3 +2,4 @@ node_modules/
 .next/
 .vscode/
 pm2.config.js
+members.csv
