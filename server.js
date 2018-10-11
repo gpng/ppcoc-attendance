@@ -69,7 +69,7 @@ const start = async () => {
     }
   });
 
-  const getAbsentees = async () => {
+  const getAbsentees = async (date) => {
     try {
       const results = await Member.findAll({
         where: {
@@ -77,10 +77,7 @@ const start = async () => {
             [Op.or]: [
               null,
               {
-                [Op.lt]: moment()
-                  .utc()
-                  .startOf('week')
-                  .toDate(),
+                [Op.lt]: date.toDate(),
               },
             ],
           },
@@ -97,11 +94,14 @@ const start = async () => {
     }
   };
 
-  const getAttendanceNumbers = async (reason) => {
+  const getAttendanceNumbers = async (reason, date) => {
     try {
       const results = await Attendance.findAll({
         where: {
           reason,
+          createdAt: {
+            [Op.and]: [{ [Op.gte]: date.toDate() }, { [Op.lt]: date.add(1, 'days').toDate() }],
+          },
         },
       });
       if (results) {
@@ -117,9 +117,10 @@ const start = async () => {
 
   server.get('/api/report', async (req, res) => {
     try {
+      const date = moment().startOf('week');
       const [absentees, ...servicesAttendance] = await Promise.all([
-        getAbsentees(),
-        ...SERVICES.map(x => getAttendanceNumbers(x)),
+        getAbsentees(date),
+        ...SERVICES.map(x => getAttendanceNumbers(x, date)),
       ]);
       const attendance = {};
       servicesAttendance.forEach((x, i) => {
