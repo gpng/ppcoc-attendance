@@ -18,7 +18,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
   },
-  logout: {
+  rightButtons: {
     fontSize: '0.6em',
     color: '#999999',
   },
@@ -31,9 +31,20 @@ const Header = ({ classes }) => (
         <Button color="inherit">PPCOC</Button>
       </Link>
       {auth0Client.isAuthenticated() && (
-        <Button className={classes.logout} color="inherit" onClick={() => auth0Client.signOut()}>
-          Logout
-        </Button>
+        <div>
+          <Link href="/admin">
+            <Button className={classes.rightButtons} color="inherit">
+              Admin
+            </Button>
+          </Link>
+          <Button
+            className={classes.rightButtons}
+            color="inherit"
+            onClick={() => auth0Client.signOut()}
+          >
+            Logout
+          </Button>
+        </div>
       )}
     </Toolbar>
   </AppBar>
