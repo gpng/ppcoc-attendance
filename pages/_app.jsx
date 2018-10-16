@@ -1,5 +1,6 @@
 import React from 'react';
 import App, { Container } from 'next/app';
+import Head from 'next/head';
 import JssProvider from 'react-jss/lib/JssProvider';
 
 // material-ui
@@ -32,6 +33,9 @@ class MyApp extends App {
     const { Component, pageProps } = this.props;
     return (
       <Container>
+        <Head>
+          <title>PPCOC Attendance</title>
+        </Head>
         {/* Wrap every page in Jss and Theme providers */}
         <JssProvider
           registry={this.pageContext.sheetsRegistry}
