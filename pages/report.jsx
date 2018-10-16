@@ -105,17 +105,12 @@ class Report extends Component {
         <Typography variant="caption">Attendance</Typography>
         <Table>
           <TableBody>
-            {SERVICES.map((x) => {
-              if (attendance[x]) {
-                return (
-                  <TableRow key={x}>
-                    <TableCell>{x}</TableCell>
-                    <TableCell>{attendance[x]}</TableCell>
-                  </TableRow>
-                );
-              }
-              return null;
-            })}
+            {SERVICES.map(x => (
+              <TableRow key={x}>
+                <TableCell>{x}</TableCell>
+                <TableCell>{attendance[x] ? attendance[x] : 0}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
         <Typography className={classes.label} variant="caption">
