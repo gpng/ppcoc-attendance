@@ -40,7 +40,7 @@ export class GetAutocomplete extends AxiosRequest {
 }
 
 export class GetReport extends AxiosRequest {
-  async call() {
+  async call(date) {
     this.refreshToken();
     const uri = `${API_HOST}/report`;
     const [err, res] = await to(
@@ -48,6 +48,9 @@ export class GetReport extends AxiosRequest {
         cancelToken: this.getCancelToken(),
         headers: {
           Authorization: `Bearer ${auth0Client.getIdToken()}`,
+        },
+        params: {
+          date,
         },
       }),
     );

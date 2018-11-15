@@ -18,7 +18,7 @@ const handle = app.getRequestHandler();
 const { Member, Attendance } = require('./models');
 
 // constants
-const { SERVICES } = require('./constants');
+const { SERVICES, DATE_FORMAT } = require('./constants');
 
 const start = async () => {
   await app.prepare();
@@ -144,7 +144,7 @@ const start = async () => {
 
   server.get('/api/report', checkJwt, async (req, res) => {
     try {
-      const date = moment().startOf('week');
+      const date = moment(req.query.date, DATE_FORMAT);
       const [absentees, ...servicesAttendance] = await Promise.all([
         getAbsentees(date),
         ...SERVICES.map(x => getAttendanceNumbers(x, date)),
