@@ -27,7 +27,22 @@ const start = async () => {
   server.use(bodyParser.json());
   server.use(bodyParser.urlencoded({ extended: true }));
 
-  server.get('/api/members', async (req, res) => {
+  // AUTH
+  const checkJwt = jwt({
+    secret: jwksRsa.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: `https://${config.auth0Domain}/.well-known/jwks.json`,
+    }),
+
+    // Validate the audience and the issuer.
+    audience: config.auth0ClientId,
+    issuer: `https://${config.auth0Domain}/`,
+    algorithms: ['RS256'],
+  });
+
+  server.get('/api/members', checkJwt, async (req, res) => {
     try {
       const members = await Member.findAll();
       if (members) {
@@ -126,21 +141,6 @@ const start = async () => {
       );
     },
   );
-
-  // AUTH
-  const checkJwt = jwt({
-    secret: jwksRsa.expressJwtSecret({
-      cache: true,
-      rateLimit: true,
-      jwksRequestsPerMinute: 5,
-      jwksUri: `https://${config.auth0Domain}/.well-known/jwks.json`,
-    }),
-
-    // Validate the audience and the issuer.
-    audience: config.auth0ClientId,
-    issuer: `https://${config.auth0Domain}/`,
-    algorithms: ['RS256'],
-  });
 
   server.get('/api/report', checkJwt, async (req, res) => {
     try {

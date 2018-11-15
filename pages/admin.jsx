@@ -35,8 +35,8 @@ class Admin extends Component {
   }
 
   componentDidMount() {
+    localStorage.setItem('route', '/admin');
     if (!auth0Client.isAuthenticated()) {
-      localStorage.setItem('route', '/admin');
       auth0Client.signIn();
     }
   }

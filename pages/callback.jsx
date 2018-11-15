@@ -8,7 +8,7 @@ class Callback extends Component {
   async componentDidMount() {
     await auth0Client.handleAuthentication();
     const routeTo = localStorage.getItem('route');
-    Router.push(routeTo || '/');
+    Router.push(routeTo || '/admin');
   }
 
   render() {

@@ -11,13 +11,11 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import TextField from '@material-ui/core/TextField';
 
 // components
-import { GetReport } from '../actions';
+import { GetMembers } from '../actions';
 import auth0Client from '../components/Auth';
-
-// constants
-import { SERVICES } from '../constants';
 
 // styles
 import { container } from '../stylesheets/general';
@@ -33,9 +31,6 @@ const styles = {
     flexDirection: 'column',
     overflowY: 'scroll',
   },
-  label: {
-    marginTop: '12px',
-  },
   header: {
     cursor: 'pointer',
     '&:hover': {
@@ -48,10 +43,11 @@ class Report extends Component {
   constructor(props) {
     super(props);
     this.date = moment().startOf('week');
-    this.reportRequest = new GetReport();
+    this.membersRequest = new GetMembers();
+    this.members = [];
     this.state = {
-      absentees: [],
-      attendance: {},
+      members: [],
+      search: '',
       sort: {
         name: 'name',
         order: true, // true = asc, false = desc
@@ -60,12 +56,13 @@ class Report extends Component {
 
     // bindings
     this.setSort = this.setSort.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
-    localStorage.setItem('route', '/report');
+    localStorage.setItem('route', '/members');
     if (auth0Client.isAuthenticated()) {
-      this.loadReport();
+      this.loadMembers();
     } else {
       auth0Client.signIn();
     }
@@ -82,56 +79,60 @@ class Report extends Component {
     });
   }
 
-  async loadReport() {
-    const [err, report] = await this.reportRequest.call();
+  async loadMembers() {
+    const [err, members] = await this.membersRequest.call();
     if (!err) {
+      this.setState({ members });
+      this.members = members;
+    }
+  }
+
+  handleChange(event) {
+    const search = event.target.value;
+    this.setState({
+      search,
+    });
+    this.searchMembers(search);
+  }
+
+  searchMembers(value) {
+    if (value && value !== '') {
       this.setState({
-        attendance: report.attendance,
-        absentees: report.absentees.map(x => ({
-          ...x,
-          weeks: x.lastAttendance ? this.date.diff(moment(x.lastAttendance), 'weeks') : null,
-        })),
+        members: this.members.filter(x => x.name.toLowerCase().indexOf(value.toLowerCase()) > -1),
       });
+    } else {
+      this.setState({ members: this.members });
     }
   }
 
   render() {
     const { classes } = this.props;
-    const { absentees, attendance, sort } = this.state;
+    const { members, sort, search } = this.state;
 
     return (
       <div className={classes.root}>
-        <Typography variant="overline">{`Report for ${this.date.format('YYYY-MM-DD')}`}</Typography>
-        <Typography variant="caption">Attendance</Typography>
-        <Table>
-          <TableBody>
-            {SERVICES.map(x => (
-              <TableRow key={x}>
-                <TableCell>{x}</TableCell>
-                <TableCell>{attendance[x] ? attendance[x] : 0}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <Typography className={classes.label} variant="caption">
-          Absentees
-        </Typography>
+        <Typography variant="overline">Members List</Typography>
+        <TextField label="Search Name" value={search} onChange={this.handleChange} />
         <Table>
           <TableHead>
             <TableRow>
               <TableCell className={classes.header} onClick={() => this.setSort('name')}>
                 Name
               </TableCell>
-              <TableCell className={classes.header} onClick={() => this.setSort('lastAttendance')}>
-                Weeks
+              <TableCell className={classes.header} onClick={() => this.setSort('status')}>
+                Status
+              </TableCell>
+              <TableCell className={classes.header} onClick={() => this.setSort('remarks')}>
+                Remarks
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {orderBy(absentees, [sort.name], [sort.order ? 'asc' : 'desc']).map(x => (
+            {orderBy(members, [sort.name], [sort.order ? 'asc' : 'desc']).map(x => (
               <TableRow key={x.id}>
                 <TableCell>{x.name}</TableCell>
-                <TableCell>{x.weeks}</TableCell>
+                <TableCell>{x.status}</TableCell>
+                <TableCell>{x.remarks}</TableCell>
               </TableRow>
             ))}
           </TableBody>
