@@ -12,15 +12,9 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-
-import Input from '@material-ui/core/Input';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import FilledInput from '@material-ui/core/FilledInput';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import NativeSelect from '@material-ui/core/NativeSelect';
+import TextField from '@material-ui/core/TextField';
 
 // components
 import { GetReport } from '../actions';
@@ -58,6 +52,7 @@ class Report extends Component {
   constructor(props) {
     super(props);
     this.reportRequest = new GetReport();
+    this.absentees = [];
     this.state = {
       absentees: [],
       attendance: {},
@@ -67,11 +62,13 @@ class Report extends Component {
       },
       dates: [],
       selectedDate: null,
+      search: '',
     };
 
     // bindings
     this.setSort = this.setSort.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleSearchChange = this.handleSearchChange.bind(this);
   }
 
   componentDidMount() {
@@ -111,13 +108,14 @@ class Report extends Component {
   async loadReport(date) {
     this.reportRequest.cancel();
     const [err, report] = await this.reportRequest.call(date.format(DATE_FORMAT));
+    this.absentees = report.absentees.map(x => ({
+      ...x,
+      weeks: x.lastAttendance ? date.diff(moment(x.lastAttendance), 'weeks') : null,
+    }));
     if (!err) {
       this.setState({
         attendance: report.attendance,
-        absentees: report.absentees.map(x => ({
-          ...x,
-          weeks: x.lastAttendance ? date.diff(moment(x.lastAttendance), 'weeks') : null,
-        })),
+        absentees: this.absentees,
       });
     }
   }
@@ -128,9 +126,29 @@ class Report extends Component {
     this.setState({ selectedDate });
   }
 
+  handleSearchChange(event) {
+    const search = event.target.value;
+    this.setState({
+      search,
+    });
+    this.searchAbsentees(search);
+  }
+
+  searchAbsentees(value) {
+    if (value && value !== '') {
+      this.setState({
+        absentees: this.absentees.filter(
+          x => x.name.toLowerCase().indexOf(value.toLowerCase()) > -1,
+        ),
+      });
+    } else {
+      this.setState({ absentees: this.absentees });
+    }
+  }
+
   render() {
     const { classes } = this.props;
-    const { absentees, attendance, sort, selectedDate, dates } = this.state;
+    const { absentees, attendance, sort, selectedDate, dates, search } = this.state;
 
     return (
       <div className={classes.root}>
@@ -163,6 +181,7 @@ class Report extends Component {
         <Typography className={classes.label} variant="caption">
           Absentees
         </Typography>
+        <TextField label="Search Name" value={search} onChange={this.handleSearchChange} />
         <Table>
           <TableHead>
             <TableRow>
