@@ -159,6 +159,25 @@ const start = async () => {
     }
   });
 
+  server.get('/api/attendance', checkJwt, async (req, res) => {
+    try {
+      const results = await Attendance.findAll({
+        include: [
+          {
+            model: Member,
+          },
+        ],
+      });
+      if (results) {
+        res.status(200).send(results);
+      } else {
+        res.status(500).send('server error');
+      }
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+
   // CLIENT
   server.get('*', (req, res) => handle(req, res));
 

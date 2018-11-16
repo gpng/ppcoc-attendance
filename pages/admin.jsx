@@ -48,12 +48,17 @@ class Admin extends Component {
         <Typography variant="overline">Admin Menu</Typography>
         <Link prefetch href="report">
           <Button className={classes.button} variant="contained" color="secondary">
-            Attendance Report
+            Weekly Attendance Report
           </Button>
         </Link>
         <Link prefetch href="members">
           <Button className={classes.button} variant="contained" color="secondary">
             Members List
+          </Button>
+        </Link>
+        <Link href="extractData">
+          <Button className={classes.button} variant="contained" color="secondary">
+            Extract attendance data
           </Button>
         </Link>
       </div>
