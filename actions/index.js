@@ -98,3 +98,26 @@ export class GetAllAttendance extends AxiosRequest {
     return [err || 'server error', null];
   }
 }
+
+export class PostNewMember extends AxiosRequest {
+  async call(name, status, remarks) {
+    this.refreshToken();
+    const uri = `${API_HOST}/new`;
+    const [err, res] = await to(
+      axios.post(
+        uri,
+        { name, status, remarks },
+        {
+          cancelToken: this.getCancelToken(),
+          headers: {
+            Authorization: `Bearer ${auth0Client.getIdToken()}`,
+          },
+        },
+      ),
+    );
+    if (!err && res.status === 200) {
+      return [null, res.data];
+    }
+    return [err || 'server error', null];
+  }
+}

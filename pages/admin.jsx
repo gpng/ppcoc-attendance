@@ -61,6 +61,11 @@ class Admin extends Component {
             Extract attendance data
           </Button>
         </Link>
+        <Link href="new">
+          <Button className={classes.button} variant="contained" color="secondary">
+            Add New Member
+          </Button>
+        </Link>
       </div>
     );
   }

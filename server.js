@@ -87,6 +87,21 @@ const start = async () => {
     }
   });
 
+  server.post('/api/new', checkJwt, async (req, res) => {
+    try {
+      const { name, status, remarks } = req.body;
+
+      const member = await Member.create({ name, status, remarks });
+      if (member) {
+        res.status(200).send(member);
+      } else {
+        res.status(500).send('server error');
+      }
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+
   const getAbsentees = async (date) => {
     try {
       const results = await Member.findAll({
