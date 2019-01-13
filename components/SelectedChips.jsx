@@ -11,6 +11,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    flexShrink: 0,
   },
   chipsContainer: {
     display: 'flex',

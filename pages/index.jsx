@@ -37,6 +37,7 @@ const styles = {
   inputContainer: {
     display: 'flex',
     justifyContent: 'space-between',
+    flexShrink: 0,
   },
   input: {
     flex: '1 0 auto',
