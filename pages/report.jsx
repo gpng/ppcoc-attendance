@@ -46,6 +46,9 @@ const styles = {
       color: '#000000',
     },
   },
+  input: {
+    flexShrink: 0,
+  },
 };
 
 class Report extends Component {
@@ -181,7 +184,12 @@ class Report extends Component {
         <Typography className={classes.label} variant="caption">
           Absentees
         </Typography>
-        <TextField label="Search Name" value={search} onChange={this.handleSearchChange} />
+        <TextField
+          label="Search Name"
+          value={search}
+          onChange={this.handleSearchChange}
+          className={classes.input}
+        />
         <Table>
           <TableHead>
             <TableRow>
