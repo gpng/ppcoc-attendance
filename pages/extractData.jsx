@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { orderBy } from 'lodash';
+import { saveAs } from 'file-saver';
 
 // datepicker
 import MomentUtils from '@date-io/moment';
@@ -18,6 +19,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 
 // components
 import { GetReport, GetAllAttendance } from '../actions';
@@ -28,6 +30,8 @@ import { STARTING_DATE, DATE_FORMAT } from '../constants';
 
 // styles
 import { container } from '../stylesheets/general';
+
+const DATE_DISPLAY_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 const styles = {
   root: {
@@ -141,9 +145,32 @@ class Report extends Component {
     this.setState({ endDate: date });
   }
 
+  handleDownload(data) {
+    console.log(data);
+    let rows = [['Name', 'Service', 'Date']];
+    rows = rows.concat(
+      data.map(x => [x.name, x.reason, moment(x.createdAt).format(DATE_DISPLAY_FORMAT)]),
+    );
+    console.log(rows);
+    const csv = `${rows.map(x => x.join(',')).join('\n')}\n`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const { startDate, endDate } = this.state;
+    saveAs(blob, `PPCOC_Report_${startDate.format('YYYYMMDD')}_${endDate.format('YYYYMMDD')}.csv`);
+  }
+
   render() {
     const { classes } = this.props;
     const { attendance, sort, search, startDate, endDate } = this.state;
+
+    const data = orderBy(
+      attendance.filter(
+        x =>
+          moment(x.createdAt).isSameOrBefore(endDate.endOf('day')) &&
+          moment(x.createdAt).isSameOrAfter(startDate.startOf('day')),
+      ),
+      [sort.name],
+      [sort.order ? 'asc' : 'desc'],
+    );
 
     return (
       <div className={classes.root}>
@@ -171,6 +198,9 @@ class Report extends Component {
                 format={DATE_FORMAT}
               />
             </div>
+            <Button variant="contained" color="secondary" onClick={() => this.handleDownload(data)}>
+              Extract CSV
+            </Button>
           </div>
         </MuiPickersUtilsProvider>
         <TextField label="Search Name" value={search} onChange={this.handleSearchChange} />
@@ -189,19 +219,11 @@ class Report extends Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {orderBy(
-              attendance.filter(
-                x =>
-                  moment(x.createdAt).isSameOrBefore(endDate.endOf('day')) &&
-                  moment(x.createdAt).isSameOrAfter(startDate.startOf('day')),
-              ),
-              [sort.name],
-              [sort.order ? 'asc' : 'desc'],
-            ).map(x => (
+            {data.map(x => (
               <TableRow key={x.id}>
                 <TableCell>{x.name}</TableCell>
                 <TableCell>{x.reason}</TableCell>
-                <TableCell>{moment(x.createdAt).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
+                <TableCell>{moment(x.createdAt).format(DATE_DISPLAY_FORMAT)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
