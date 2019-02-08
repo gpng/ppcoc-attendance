@@ -146,16 +146,17 @@ class Report extends Component {
   }
 
   handleDownload(data) {
-    console.log(data);
     let rows = [['Name', 'Service', 'Date']];
     rows = rows.concat(
       data.map(x => [x.name, x.reason, moment(x.createdAt).format(DATE_DISPLAY_FORMAT)]),
     );
-    console.log(rows);
     const csv = `${rows.map(x => x.join(',')).join('\n')}\n`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const { startDate, endDate } = this.state;
-    saveAs(blob, `PPCOC_Report_${startDate.format('YYYYMMDD')}_${endDate.format('YYYYMMDD')}.csv`);
+    saveAs(
+      blob,
+      `PPCOC_Attendance_${startDate.format('YYYYMMDD')}_${endDate.format('YYYYMMDD')}.csv`,
+    );
   }
 
   render() {
