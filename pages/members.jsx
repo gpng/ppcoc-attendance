@@ -12,9 +12,14 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
 
 // components
-import { GetMembers } from '../actions';
+import { GetMembers, UpdateMember } from '../actions';
 import auth0Client from '../components/Auth';
 
 // styles
@@ -40,6 +45,12 @@ const styles = {
   input: {
     flexShrink: 0,
   },
+  deleteButton: {
+    backgroundColor: 'red',
+  },
+  saveButton: {
+    backgroundColor: 'green',
+  },
 };
 
 class Report extends Component {
@@ -47,6 +58,7 @@ class Report extends Component {
     super(props);
     this.date = moment().startOf('week');
     this.membersRequest = new GetMembers();
+    this.updateMemberRequest = new UpdateMember();
     this.members = [];
     this.state = {
       members: [],
@@ -55,11 +67,18 @@ class Report extends Component {
         name: 'name',
         order: true, // true = asc, false = desc
       },
+      open: false,
+      name: '',
+      status: '',
+      remarks: '',
     };
 
     // bindings
     this.setSort = this.setSort.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.close = this.close.bind(this);
+    this.handleFormChange = this.handleFormChange.bind(this);
+    this.handleSave = this.handleSave.bind(this);
   }
 
   componentDidMount() {
@@ -83,10 +102,14 @@ class Report extends Component {
   }
 
   async loadMembers() {
+    this.membersRequest.cancel();
+    this.membersRequest.refreshToken();
     const [err, members] = await this.membersRequest.call();
     if (!err) {
       this.setState({ members });
       this.members = members;
+      const { search } = this.state;
+      this.searchMembers(search);
     }
   }
 
@@ -96,6 +119,12 @@ class Report extends Component {
       search,
     });
     this.searchMembers(search);
+  }
+
+  handleFormChange(name) {
+    return (event) => {
+      this.setState({ [name]: event.target.value });
+    };
   }
 
   searchMembers(value) {
@@ -108,14 +137,57 @@ class Report extends Component {
     }
   }
 
+  handleClick(member) {
+    const {
+      id, name, status, remarks,
+    } = member;
+    this.setState({
+      open: id,
+      name,
+      status,
+      remarks,
+    });
+  }
+
+  async handleSave() {
+    const { triggerNotification } = this.props;
+    const {
+      open, name, status, remarks,
+    } = this.state;
+    const [err] = await this.updateMemberRequest.call(open, name, status, remarks);
+    if (!err) {
+      triggerNotification('Successfully Updated');
+      this.loadMembers();
+      this.close();
+    } else {
+      triggerNotification(err);
+    }
+  }
+
+  close() {
+    this.setState({
+      open: false,
+      name: '',
+      status: '',
+      remarks: '',
+    });
+  }
+
   render() {
     const { classes } = this.props;
-    const { members, sort, search } = this.state;
+    const {
+      members, sort, search, open, name, status, remarks,
+    } = this.state;
 
     return (
       <div className={classes.root}>
         <Typography variant="overline">Members List</Typography>
-        <TextField label="Search Name" value={search} onChange={this.handleChange} className={classes.input} />
+        <TextField
+          label="Search Name"
+          value={search}
+          onChange={this.handleChange}
+          className={classes.input}
+        />
         <Table>
           <TableHead>
             <TableRow>
@@ -128,11 +200,12 @@ class Report extends Component {
               <TableCell className={classes.header} onClick={() => this.setSort('remarks')}>
                 Remarks
               </TableCell>
+              <TableCell className={classes.header} />
             </TableRow>
           </TableHead>
           <TableBody>
             {orderBy(members, [sort.name], [sort.order ? 'asc' : 'desc']).map(x => (
-              <TableRow key={x.id}>
+              <TableRow key={x.id} onClick={() => this.handleClick(x)}>
                 <TableCell>{x.name}</TableCell>
                 <TableCell>{x.status}</TableCell>
                 <TableCell>{x.remarks}</TableCell>
@@ -140,6 +213,44 @@ class Report extends Component {
             ))}
           </TableBody>
         </Table>
+        <Dialog open={Boolean(open)} onClose={this.close} aria-labelledby="form-dialog-title">
+          <DialogTitle>Edit Member</DialogTitle>
+          <DialogContent>
+            <TextField
+              onChange={this.handleFormChange('name')}
+              autoFocus
+              margin="dense"
+              value={name}
+              label="Name"
+              type="text"
+              fullWidth
+            />
+            <TextField
+              onChange={this.handleFormChange('status')}
+              margin="dense"
+              value={status}
+              label="Status"
+              type="text"
+              fullWidth
+            />
+            <TextField
+              onChange={this.handleFormChange('remarks')}
+              margin="dense"
+              value={remarks}
+              label="Remarks"
+              type="text"
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.close} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={this.handleSave} color="primary" className={classes.saveButton}>
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }

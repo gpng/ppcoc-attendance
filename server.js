@@ -55,6 +55,32 @@ const start = async () => {
     }
   });
 
+  server.put('/api/member/:id', checkJwt, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, status, remarks } = req.body;
+      const result = await Member.update(
+        {
+          name,
+          status,
+          remarks,
+        },
+        {
+          where: {
+            id,
+          },
+        },
+      );
+      if (result[0] > 0) {
+        res.status(200).send('success');
+        return;
+      }
+      res.status(500).send('no rows updated');
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+
   server.post('/api/attendance', async (req, res) => {
     try {
       const { reason, ids } = req.body;

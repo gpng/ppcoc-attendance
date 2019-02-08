@@ -121,3 +121,26 @@ export class PostNewMember extends AxiosRequest {
     return [err || 'server error', null];
   }
 }
+
+export class UpdateMember extends AxiosRequest {
+  async call(id, name, status, remarks) {
+    this.refreshToken();
+    const uri = `${API_HOST}/member/${id}`;
+    const [err, res] = await to(
+      axios.put(
+        uri,
+        { name, status, remarks },
+        {
+          cancelToken: this.getCancelToken(),
+          headers: {
+            Authorization: `Bearer ${auth0Client.getIdToken()}`,
+          },
+        },
+      ),
+    );
+    if (!err && res.status === 200) {
+      return [null, true];
+    }
+    return [err || 'server error', null];
+  }
+}
