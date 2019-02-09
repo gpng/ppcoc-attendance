@@ -65,6 +65,11 @@ yarn dev
 yarn start
 ```
 
+## TODO
+
+- Move database to cloud (AWS) to avoid dealing with backups
+- Fix UI issues on all devices (ios, android, macOS, windows) and browsers (firefox, chrome, safari)
+
 ## Maintainers
 
 [@gpng](https://github.com/gpng)
