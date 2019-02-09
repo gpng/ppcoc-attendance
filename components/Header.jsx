@@ -18,28 +18,32 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
   },
+  header: {
+    backgroundColor: '#ffffff',
+  },
   rightButtons: {
     fontSize: '0.6em',
-    color: '#999999',
   },
 };
 
 const Header = ({ classes }) => (
-  <AppBar position="static" color="primary">
+  <AppBar position="static" className={classes.header}>
     <Toolbar className={classes.container}>
       <Link href="/">
-        <Button color="inherit">PPCOC</Button>
+        <Button color="inherit">
+          <img className="logo" src="/static/logo.png" alt="PPCOC" />
+        </Button>
       </Link>
       {auth0Client.isAuthenticated() && (
         <div>
           <Link href="/admin">
-            <Button className={classes.rightButtons} color="inherit">
+            <Button className={classes.rightButtons} color="secondary">
               Admin
             </Button>
           </Link>
           <Button
             className={classes.rightButtons}
-            color="inherit"
+            color="secondary"
             onClick={() => auth0Client.signOut()}
           >
             Logout
@@ -47,6 +51,13 @@ const Header = ({ classes }) => (
         </div>
       )}
     </Toolbar>
+    <style jsx>
+      {`
+        .logo {
+          height: 25px;
+        }
+      `}
+    </style>
   </AppBar>
 );
 

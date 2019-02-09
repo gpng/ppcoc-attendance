@@ -100,7 +100,7 @@ class MuiComponent extends Component {
         <Button
           className={classes.button}
           variant="contained"
-          color="secondary"
+          color="primary"
           onClick={this.handleClick}
         >
           Add Member

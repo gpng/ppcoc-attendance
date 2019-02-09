@@ -120,7 +120,7 @@ class Index extends Component {
           <Link href="/submit">
             <Button
               variant="contained"
-              color="secondary"
+              color="primary"
               onClick={this.handleSubmit}
               disabled={selected.length === 0}
             >

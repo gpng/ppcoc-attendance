@@ -65,7 +65,7 @@ class Submit extends Component {
             key={x}
             className={classes.button}
             variant="contained"
-            color="secondary"
+            color="primary"
             disabled={selected.length === 0}
             onClick={() => this.handleClick(x)}
           >

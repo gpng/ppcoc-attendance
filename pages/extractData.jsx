@@ -55,9 +55,14 @@ const styles = {
   },
   dateWrapper: {
     display: 'flex',
+    flexShrink: 0,
   },
   to: {
     margin: '0 2em',
+  },
+  inputContainer: {
+    flexShrink: 0,
+    width: '100%',
   },
 };
 
@@ -199,12 +204,19 @@ class Report extends Component {
                 format={DATE_FORMAT}
               />
             </div>
-            <Button variant="contained" color="secondary" onClick={() => this.handleDownload(data)}>
+            <Button variant="contained" color="primary" onClick={() => this.handleDownload(data)}>
               Extract CSV
             </Button>
           </div>
         </MuiPickersUtilsProvider>
-        <TextField label="Search Name" value={search} onChange={this.handleSearchChange} />
+        <div className={classes.inputContainer}>
+          <TextField
+            label="Search Name"
+            value={search}
+            onChange={this.handleSearchChange}
+            fullWidth
+          />
+        </div>
         <Table>
           <TableHead>
             <TableRow>

@@ -47,22 +47,22 @@ class Admin extends Component {
       <div className={classes.root}>
         <Typography variant="overline">Admin Menu</Typography>
         <Link prefetch href="report">
-          <Button className={classes.button} variant="contained" color="secondary">
+          <Button className={classes.button} variant="contained" color="primary">
             Weekly Attendance Report
           </Button>
         </Link>
         <Link prefetch href="members">
-          <Button className={classes.button} variant="contained" color="secondary">
+          <Button className={classes.button} variant="contained" color="primary">
             Members List
           </Button>
         </Link>
         <Link href="extractData">
-          <Button className={classes.button} variant="contained" color="secondary">
+          <Button className={classes.button} variant="contained" color="primary">
             Extract attendance data
           </Button>
         </Link>
         <Link href="new">
-          <Button className={classes.button} variant="contained" color="secondary">
+          <Button className={classes.button} variant="contained" color="primary">
             Add New Member
           </Button>
         </Link>
