@@ -155,11 +155,15 @@ const start = async () => {
 
   const getAttendanceNumbers = async (reason, date) => {
     try {
+      const copyDate = moment(date);
       const results = await Attendance.findAll({
         where: {
           reason,
           createdAt: {
-            [Op.and]: [{ [Op.gte]: date.toDate() }, { [Op.lt]: date.add(1, 'days').toDate() }],
+            [Op.and]: [
+              { [Op.gte]: copyDate.toDate() },
+              { [Op.lt]: copyDate.add(1, 'days').toDate() },
+            ],
           },
         },
       });
