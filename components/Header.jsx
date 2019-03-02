@@ -54,7 +54,7 @@ const Header = ({ classes }) => (
     <style jsx>
       {`
         .logo {
-          height: 25px;
+          height: 33px;
         }
       `}
     </style>

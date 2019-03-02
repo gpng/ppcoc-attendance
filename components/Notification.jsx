@@ -8,7 +8,9 @@ import CloseIcon from '@material-ui/icons/Close';
 
 const styles = {
   snackbar: {
-    background: '#43a047',
+    background: '#d95f54',
+    fontWeight: 700,
+    fontSize: '1.2em',
   },
 };
 
@@ -17,11 +19,11 @@ const Notification = ({
 }) => (
   <Snackbar
     anchorOrigin={{
-      vertical: 'top',
+      vertical: 'bottom',
       horizontal: 'center',
     }}
     open={open}
-    autoHideDuration={2000}
+    // autoHideDuration={2000}
     onClose={onClose}
   >
     <SnackbarContent
