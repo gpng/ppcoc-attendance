@@ -46,20 +46,42 @@ A NextJS server-side rendered webapp served by an ExpressJS server and API, usin
 
 3.  Install (PostgreSQL)[https://www.postgresql.org/download/]
 
-4.  Navigate to project folder in cmd/terminal and run
+4.  Create a db named `ppcoc`
+
+5.  Navigate to project folder in cmd/terminal and run
 
 ```
 yarn
 ```
 
-## Usage
+6. Copy `config.sample.js` to `config.js` and replace the database connection config with your own details. The default is as below.
 
 ```
-yarn db-all
+username: null,
+password: null,
+database: 'ppcoc',
+host: 'localhost',
+port: '5432',
+dialect: 'postgres',
+```
+
+## Usage
+
+1.  Create db tables
+
+```
+yarn db-migrate
+```
+
+2.  Start dev server
+
+```
 yarn dev
 ```
 
 ## Deployment
+
+Run pm2 server
 
 ```
 yarn start

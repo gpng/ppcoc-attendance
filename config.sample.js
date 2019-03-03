@@ -7,8 +7,8 @@ module.exports = {
     port: '5432',
     dialect: 'postgres',
     operatorsAliases: false,
-    auth0ClientId: 'auth0clientid',
-    auth0Domain: 'auth0Domain',
+    auth0ClientId: 'NBBz2scjvIpvMywd8Hyn4w7XIpAbTg8K',
+    auth0Domain: 'gpng-dev.au.auth0.com',
   },
   production: {
     username:
