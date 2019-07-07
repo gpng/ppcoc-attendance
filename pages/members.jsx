@@ -265,7 +265,12 @@ class Report extends Component {
             <Button onClick={this.close} color="primary">
               Cancel
             </Button>
-            <Button onClick={this.handleSave} color="primary" className={classes.saveButton}>
+            <Button
+              disabled={name === '' || status === ''}
+              onClick={this.handleSave}
+              color="primary"
+              className={classes.saveButton}
+            >
               Save
             </Button>
           </DialogActions>
