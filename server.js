@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const express = require('express');
 const next = require('next');
 const moment = require('moment');
@@ -141,7 +142,7 @@ const start = async () => {
             ],
           },
         },
-        attributes: ['id', 'name', 'lastAttendance'],
+        attributes: ['id', 'name', 'status', 'lastAttendance'],
       });
       if (results) {
         return results;

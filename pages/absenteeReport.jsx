@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { orderBy } from 'lodash';
+import { saveAs } from 'file-saver';
 
 // material-ui
 import { withStyles } from '@material-ui/core/styles';
@@ -15,6 +16,10 @@ import TableRow from '@material-ui/core/TableRow';
 import FormControl from '@material-ui/core/FormControl';
 import NativeSelect from '@material-ui/core/NativeSelect';
 import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 
 // components
 import { GetReport } from '../actions';
@@ -25,6 +30,8 @@ import { SERVICES, STARTING_DATE, DATE_FORMAT } from '../constants';
 
 // styles
 import { container } from '../stylesheets/general';
+
+const DATE_DISPLAY_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 const styles = {
   root: {
@@ -49,9 +56,12 @@ const styles = {
   input: {
     flexShrink: 0,
   },
+  checkbox: {
+    marginRight: '24ox',
+  },
 };
 
-class Report extends Component {
+class AbsenteeReport extends Component {
   constructor(props) {
     super(props);
     this.reportRequest = new GetReport();
@@ -66,16 +76,19 @@ class Report extends Component {
       dates: [],
       selectedDate: null,
       search: '',
+      excludeInactive: false,
+      excludeOverseas: false,
     };
 
     // bindings
     this.setSort = this.setSort.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
 
   componentDidMount() {
-    localStorage.setItem('route', '/report');
+    localStorage.setItem('route', '/absenteeReport');
     if (auth0Client.isAuthenticated()) {
       this.loadDateRange();
     } else {
@@ -113,7 +126,7 @@ class Report extends Component {
     const [err, report] = await this.reportRequest.call(date.format(DATE_FORMAT));
     this.absentees = report.absentees.map(x => ({
       ...x,
-      weeks: x.lastAttendance ? date.diff(moment(x.lastAttendance), 'weeks') : null,
+      weeks: x.lastAttendance ? date.diff(moment(x.lastAttendance), 'weeks') + 1 : null,
     }));
     if (!err) {
       this.setState({
@@ -129,12 +142,42 @@ class Report extends Component {
     this.setState({ selectedDate });
   }
 
+  handleCheckboxChange(name) {
+    return event => {
+      this.setState({ [name]: event.target.checked });
+    };
+  }
+
   handleSearchChange(event) {
     const search = event.target.value;
     this.setState({
       search,
     });
     this.searchAbsentees(search);
+  }
+
+  handleDownload(data) {
+    const { selectedDate, excludeInactive, excludeOverseas } = this.state;
+
+    let rows = [['Name', 'Status', 'Weeks Absent', 'Last Attendance']];
+
+    // filter inactive and overseas if selected
+    let filteredData = data;
+    if (excludeInactive) filteredData = filteredData.filter(x => x.status !== 'I');
+    if (excludeOverseas) filteredData = filteredData.filter(x => x.status !== 'O');
+
+    // generate csv string
+    rows = rows.concat(
+      filteredData.map(x => [
+        x.name,
+        x.status,
+        x.weeks,
+        x.lastAttendance ? moment(x.lastAttendance).format(DATE_DISPLAY_FORMAT) : null,
+      ]),
+    );
+    const csv = `${rows.map(x => x.join(',')).join('\n')}\n`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, `PPCOC_Absentees_${selectedDate.format(DATE_FORMAT)}.csv`);
   }
 
   searchAbsentees(value) {
@@ -151,7 +194,16 @@ class Report extends Component {
 
   render() {
     const { classes } = this.props;
-    const { absentees, attendance, sort, selectedDate, dates, search } = this.state;
+    const {
+      absentees,
+      attendance,
+      sort,
+      selectedDate,
+      dates,
+      search,
+      excludeInactive,
+      excludeOverseas,
+    } = this.state;
 
     return (
       <div className={classes.root}>
@@ -184,6 +236,33 @@ class Report extends Component {
         <Typography className={classes.label} variant="caption">
           Absentees
         </Typography>
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => this.handleDownload(absentees)}
+          >
+            Extract CSV
+          </Button>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={excludeInactive}
+                onChange={this.handleCheckboxChange('excludeInactive')}
+              />
+            }
+            label="Exclude Inacitve"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={excludeOverseas}
+                onChange={this.handleCheckboxChange('excludeOverseas')}
+              />
+            }
+            label="Exclude Overseas"
+          />
+        </div>
         <TextField
           label="Search Name"
           value={search}
@@ -196,8 +275,14 @@ class Report extends Component {
               <TableCell className={classes.header} onClick={() => this.setSort('name')}>
                 Name
               </TableCell>
+              <TableCell className={classes.header} onClick={() => this.setSort('status')}>
+                Status
+              </TableCell>
               <TableCell className={classes.header} onClick={() => this.setSort('lastAttendance')}>
-                Weeks
+                Weeks Absent
+              </TableCell>
+              <TableCell className={classes.header} onClick={() => this.setSort('lastAttendance')}>
+                Last Attendance
               </TableCell>
             </TableRow>
           </TableHead>
@@ -205,7 +290,11 @@ class Report extends Component {
             {orderBy(absentees, [sort.name], [sort.order ? 'asc' : 'desc']).map(x => (
               <TableRow key={x.id}>
                 <TableCell>{x.name}</TableCell>
+                <TableCell>{x.status}</TableCell>
                 <TableCell>{x.weeks}</TableCell>
+                <TableCell>
+                  {x.lastAttendance ? moment(x.lastAttendance).format(DATE_DISPLAY_FORMAT) : null}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -215,8 +304,8 @@ class Report extends Component {
   }
 }
 
-Report.propTypes = {
+AbsenteeReport.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Report);
+export default withStyles(styles)(AbsenteeReport);
