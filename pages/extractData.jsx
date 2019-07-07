@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { orderBy } from 'lodash';
+import { orderBy, uniqBy } from 'lodash';
 import { saveAs } from 'file-saver';
 
 // datepicker
@@ -116,7 +116,10 @@ class Report extends Component {
   async loadAttendance() {
     this.attendanceRequest.cancel();
     const [err, rawAttendance] = await this.attendanceRequest.call();
-    const attendance = rawAttendance.map(x => ({ ...x, name: x.Member.name }));
+    const attendance = uniqBy(
+      rawAttendance,
+      x => x.reason + moment(x.createdAt).format('YYYYMMDD'),
+    ).map(x => ({ ...x, name: x.Member.name }));
     if (!err) {
       this.attendance = attendance;
       this.setState({
