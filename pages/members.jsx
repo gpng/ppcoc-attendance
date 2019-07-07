@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { orderBy } from 'lodash';
+import { saveAs } from 'file-saver';
 
 // material-ui
 import { withStyles } from '@material-ui/core/styles';
@@ -54,6 +55,15 @@ const styles = {
 };
 
 class Report extends Component {
+  static handleDownload(data) {
+    let rows = [['Name', 'Status', 'Remarks']];
+    rows = rows.concat(data.map(x => [x.name, x.status, x.remarks]));
+    const csv = `${rows.map(x => x.join(',')).join('\n')}\n`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+
+    saveAs(blob, `PPCOC_Members_${moment().format('YYYYMMDD')}.csv`);
+  }
+
   constructor(props) {
     super(props);
     this.date = moment().startOf('week');
@@ -182,6 +192,15 @@ class Report extends Component {
     return (
       <div className={classes.root}>
         <Typography variant="overline">Members List</Typography>
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => Report.handleDownload(members)}
+          >
+            Download CSV
+          </Button>
+        </div>
         <TextField
           label="Search Name"
           value={search}

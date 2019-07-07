@@ -177,7 +177,7 @@ class AbsenteeReport extends Component {
     );
     const csv = `${rows.map(x => x.join(',')).join('\n')}\n`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, `PPCOC_Absentees_${selectedDate.format(DATE_FORMAT)}.csv`);
+    saveAs(blob, `PPCOC_Absentees_${selectedDate.format('YYYYMMDD')}.csv`);
   }
 
   searchAbsentees(value) {
@@ -242,7 +242,7 @@ class AbsenteeReport extends Component {
             color="primary"
             onClick={() => this.handleDownload(absentees)}
           >
-            Extract CSV
+            Download CSV
           </Button>
           <FormControlLabel
             control={

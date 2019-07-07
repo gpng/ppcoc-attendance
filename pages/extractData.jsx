@@ -64,6 +64,9 @@ const styles = {
     flexShrink: 0,
     width: '100%',
   },
+  downloadButton: {
+    marginRight: '12px',
+  },
 };
 
 class Report extends Component {
@@ -204,8 +207,13 @@ class Report extends Component {
                 format={DATE_FORMAT}
               />
             </div>
-            <Button variant="contained" color="primary" onClick={() => this.handleDownload(data)}>
-              Extract CSV
+            <Button
+              className={classes.downloadButton}
+              variant="contained"
+              color="primary"
+              onClick={() => this.handleDownload(data)}
+            >
+              Download CSV
             </Button>
           </div>
         </MuiPickersUtilsProvider>
