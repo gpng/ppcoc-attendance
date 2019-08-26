@@ -39,10 +39,31 @@ export class GetAutocomplete extends AxiosRequest {
   }
 }
 
-export class GetReport extends AxiosRequest {
+export class GetAbsenteeReport extends AxiosRequest {
   async call(date) {
     this.refreshToken();
     const uri = `${API_HOST}/report`;
+    const [err, res] = await to(
+      axios.get(uri, {
+        cancelToken: this.getCancelToken(),
+        headers: {
+          Authorization: `Bearer ${auth0Client.getIdToken()}`,
+        },
+        params: {
+          date,
+        },
+      }),
+    );
+    if (!err && res.status === 200) {
+      return [null, res.data];
+    }
+    return [err || 'server error', null];
+  }
+}
+export class GetAttendanceReport extends AxiosRequest {
+  async call(date) {
+    this.refreshToken();
+    const uri = `${API_HOST}/attendanceReport`;
     const [err, res] = await to(
       axios.get(uri, {
         cancelToken: this.getCancelToken(),

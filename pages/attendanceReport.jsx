@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { orderBy } from 'lodash';
+import { orderBy, uniqBy } from 'lodash';
 import { saveAs } from 'file-saver';
 
 // material-ui
@@ -20,7 +20,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
 // components
-import { GetAbsenteeReport } from '../actions';
+import { GetAttendanceReport } from '../actions';
 import auth0Client from '../components/Auth';
 
 // constants
@@ -30,8 +30,6 @@ import {
 
 // styles
 import { container } from '../stylesheets/general';
-
-const DATE_DISPLAY_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 const styles = {
   root: {
@@ -64,10 +62,10 @@ const styles = {
 class AbsenteeReport extends Component {
   constructor(props) {
     super(props);
-    this.reportRequest = new GetAbsenteeReport();
-    this.absentees = [];
+    this.reportRequest = new GetAttendanceReport();
+    this.attendees = [];
     this.state = {
-      absentees: [],
+      attendees: [],
       attendance: {},
       sort: {
         name: 'name',
@@ -88,7 +86,7 @@ class AbsenteeReport extends Component {
   }
 
   componentDidMount() {
-    localStorage.setItem('route', '/absenteeReport');
+    localStorage.setItem('route', '/attendanceReport');
     if (auth0Client.isAuthenticated()) {
       this.loadDateRange();
     } else {
@@ -124,14 +122,17 @@ class AbsenteeReport extends Component {
   async loadReport(date) {
     this.reportRequest.cancel();
     const [err, report] = await this.reportRequest.call(date.format(DATE_FORMAT));
-    this.absentees = report.absentees.map(x => ({
+    this.attendees = uniqBy(
+      report.attendees,
+      x => x.reason + moment(x.createdAt).format('YYYYMMDD'),
+    ).map(x => ({
       ...x,
       weeks: x.lastAttendance ? date.diff(moment(x.lastAttendance), 'weeks') + 1 : null,
     }));
     if (!err) {
       this.setState({
         attendance: report.attendance,
-        absentees: this.absentees,
+        attendees: this.attendees,
       });
     }
   }
@@ -153,49 +154,46 @@ class AbsenteeReport extends Component {
     this.setState({
       search,
     });
-    this.searchAbsentees(search);
+    this.searchattendees(search);
   }
 
   handleDownload(data) {
     const { selectedDate, excludeInactive, excludeOverseas } = this.state;
 
-    let rows = [['Name', 'Status', 'Weeks Absent', 'Last Attendance']];
+    let rows = [['Name', 'Status', 'Service']];
 
     // filter inactive and overseas if selected
     let filteredData = data;
-    if (excludeInactive) filteredData = filteredData.filter(x => x.status !== STATUS.INACTIVE);
-    if (excludeOverseas) filteredData = filteredData.filter(x => x.status !== STATUS.OVERSEAS);
+    if (excludeInactive) {
+      filteredData = filteredData.filter(x => x.Member.status !== STATUS.INACTIVE);
+    }
+    if (excludeOverseas) {
+      filteredData = filteredData.filter(x => x.Member.status !== STATUS.OVERSEAS);
+    }
 
     // generate csv string
-    rows = rows.concat(
-      filteredData.map(x => [
-        x.name,
-        x.status,
-        x.weeks,
-        x.lastAttendance ? moment(x.lastAttendance).format(DATE_DISPLAY_FORMAT) : null,
-      ]),
-    );
+    rows = rows.concat(filteredData.map(x => [x.Member.name, x.Member.status, x.reason]));
     const csv = `${rows.map(x => x.join(',')).join('\n')}\n`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, `PPCOC_Absentees_${selectedDate.format('YYYYMMDD')}.csv`);
+    saveAs(blob, `PPCOC_Attendees_${selectedDate.format('YYYYMMDD')}.csv`);
   }
 
-  searchAbsentees(value) {
+  searchattendees(value) {
     if (value && value !== '') {
       this.setState({
-        absentees: this.absentees.filter(
+        attendees: this.attendees.filter(
           x => x.name.toLowerCase().indexOf(value.toLowerCase()) > -1,
         ),
       });
     } else {
-      this.setState({ absentees: this.absentees });
+      this.setState({ attendees: this.attendees });
     }
   }
 
   render() {
     const { classes } = this.props;
     const {
-      absentees,
+      attendees,
       attendance,
       sort,
       selectedDate,
@@ -235,13 +233,13 @@ class AbsenteeReport extends Component {
           </TableBody>
         </Table>
         <Typography className={classes.label} variant="caption">
-          Absentees
+          attendees
         </Typography>
         <div>
           <Button
             variant="contained"
             color="primary"
-            onClick={() => this.handleDownload(absentees)}
+            onClick={() => this.handleDownload(attendees)}
           >
             Download CSV
           </Button>
@@ -273,36 +271,30 @@ class AbsenteeReport extends Component {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell className={classes.header} onClick={() => this.setSort('name')}>
+              <TableCell className={classes.header} onClick={() => this.setSort('Member.name')}>
                 Name
               </TableCell>
-              <TableCell className={classes.header} onClick={() => this.setSort('status')}>
+              <TableCell className={classes.header} onClick={() => this.setSort('Member.status')}>
                 Status
               </TableCell>
-              <TableCell className={classes.header} onClick={() => this.setSort('lastAttendance')}>
-                Weeks Absent
-              </TableCell>
-              <TableCell className={classes.header} onClick={() => this.setSort('lastAttendance')}>
-                Last Attendance
+              <TableCell className={classes.header} onClick={() => this.setSort('reason')}>
+                Service
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {orderBy(
-              absentees.filter(
-                x => (excludeInactive ? x.status !== STATUS.INACTIVE : true)
-                  && (excludeOverseas ? x.status !== STATUS.OVERSEAS : true),
+              attendees.filter(
+                x => (excludeInactive ? x.Member.status !== STATUS.INACTIVE : true)
+                  && (excludeOverseas ? x.Member.status !== STATUS.OVERSEAS : true),
               ),
               [sort.name],
               [sort.order ? 'asc' : 'desc'],
             ).map(x => (
               <TableRow key={x.id}>
-                <TableCell>{x.name}</TableCell>
-                <TableCell>{x.status}</TableCell>
-                <TableCell>{x.weeks}</TableCell>
-                <TableCell>
-                  {x.lastAttendance ? moment(x.lastAttendance).format(DATE_DISPLAY_FORMAT) : null}
-                </TableCell>
+                <TableCell>{x.Member.name}</TableCell>
+                <TableCell>{x.Member.status}</TableCell>
+                <TableCell>{x.reason}</TableCell>
               </TableRow>
             ))}
           </TableBody>

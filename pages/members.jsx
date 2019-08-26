@@ -18,10 +18,15 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 
 // components
 import { GetMembers, UpdateMember } from '../actions';
 import auth0Client from '../components/Auth';
+
+// constants
+import { STATUS } from '../constants';
 
 // styles
 import { container } from '../stylesheets/general';
@@ -81,6 +86,8 @@ class Report extends Component {
       name: '',
       status: '',
       remarks: '',
+      excludeInactive: false,
+      excludeOverseas: false,
     };
 
     // bindings
@@ -89,6 +96,7 @@ class Report extends Component {
     this.close = this.close.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
 
   componentDidMount() {
@@ -131,6 +139,12 @@ class Report extends Component {
     this.searchMembers(search);
   }
 
+  handleCheckboxChange(name) {
+    return (event) => {
+      this.setState({ [name]: event.target.checked });
+    };
+  }
+
   handleFormChange(name) {
     return (event) => {
       this.setState({ [name]: event.target.value });
@@ -164,6 +178,14 @@ class Report extends Component {
     const {
       open, name, status, remarks,
     } = this.state;
+    if (!name || name === '') {
+      triggerNotification('Name required');
+      return;
+    }
+    if (!status || status === '') {
+      triggerNotification('Status required');
+      return;
+    }
     const [err] = await this.updateMemberRequest.call(open, name, status, remarks);
     if (!err) {
       triggerNotification('Successfully Updated');
@@ -186,7 +208,15 @@ class Report extends Component {
   render() {
     const { classes } = this.props;
     const {
-      members, sort, search, open, name, status, remarks,
+      members,
+      sort,
+      search,
+      open,
+      name,
+      status,
+      remarks,
+      excludeInactive,
+      excludeOverseas,
     } = this.state;
 
     return (
@@ -200,6 +230,24 @@ class Report extends Component {
           >
             Download CSV
           </Button>
+          <FormControlLabel
+            control={(
+              <Checkbox
+                checked={excludeInactive}
+                onChange={this.handleCheckboxChange('excludeInactive')}
+              />
+)}
+            label="Exclude Inactive"
+          />
+          <FormControlLabel
+            control={(
+              <Checkbox
+                checked={excludeOverseas}
+                onChange={this.handleCheckboxChange('excludeOverseas')}
+              />
+)}
+            label="Exclude Overseas"
+          />
         </div>
         <TextField
           label="Search Name"
@@ -223,7 +271,14 @@ class Report extends Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {orderBy(members, [sort.name], [sort.order ? 'asc' : 'desc']).map(x => (
+            {orderBy(
+              members.filter(
+                x => (excludeInactive ? x.status !== STATUS.INACTIVE : true)
+                  && (excludeOverseas ? x.status !== STATUS.OVERSEAS : true),
+              ),
+              [sort.name],
+              [sort.order ? 'asc' : 'desc'],
+            ).map(x => (
               <TableRow key={x.id} onClick={() => this.handleClick(x)}>
                 <TableCell>{x.name}</TableCell>
                 <TableCell>{x.status}</TableCell>

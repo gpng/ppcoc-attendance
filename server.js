@@ -154,6 +154,34 @@ const start = async () => {
     }
   };
 
+  const getAttendees = async (date) => {
+    try {
+      const copyDate = moment(date);
+      const results = await Attendance.findAll({
+        where: {
+          createdAt: {
+            [Op.and]: [
+              { [Op.gte]: copyDate.toDate() },
+              { [Op.lt]: copyDate.add(1, 'days').toDate() },
+            ],
+          },
+        },
+        include: [
+          {
+            model: Member,
+          },
+        ],
+      });
+      if (results) {
+        return results;
+      }
+      return {};
+    } catch (err) {
+      console.error('getAttendees error', err);
+      return {};
+    }
+  };
+
   const getAttendanceNumbers = async (reason, date) => {
     try {
       const copyDate = moment(date);
@@ -200,6 +228,23 @@ const start = async () => {
         attendance[SERVICES[i]] = x;
       });
       res.send({ absentees, attendance });
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+
+  server.get('/api/attendanceReport', checkJwt, async (req, res) => {
+    try {
+      const date = moment(req.query.date, DATE_FORMAT);
+      const [attendees, ...servicesAttendance] = await Promise.all([
+        getAttendees(date),
+        ...SERVICES.map(x => getAttendanceNumbers(x, date)),
+      ]);
+      const attendance = {};
+      servicesAttendance.forEach((x, i) => {
+        attendance[SERVICES[i]] = x;
+      });
+      res.send({ attendees, attendance });
     } catch (err) {
       res.status(500).send(err);
     }
