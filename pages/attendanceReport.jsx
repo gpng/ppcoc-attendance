@@ -124,7 +124,7 @@ class AbsenteeReport extends Component {
     const [err, report] = await this.reportRequest.call(date.format(DATE_FORMAT));
     this.attendees = uniqBy(
       report.attendees,
-      x => x.reason + moment(x.createdAt).format('YYYYMMDD'),
+      x => `${x.memberId}${x.reason}${moment(x.createdAt).format('YYYYMMDD')}`,
     ).map(x => ({
       ...x,
       weeks: x.lastAttendance ? date.diff(moment(x.lastAttendance), 'weeks') + 1 : null,
