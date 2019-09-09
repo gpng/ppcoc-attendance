@@ -182,7 +182,7 @@ class AbsenteeReport extends Component {
     if (value && value !== '') {
       this.setState({
         attendees: this.attendees.filter(
-          x => x.name.toLowerCase().indexOf(value.toLowerCase()) > -1,
+          x => x.Member.name.toLowerCase().indexOf(value.toLowerCase()) > -1,
         ),
       });
     } else {
